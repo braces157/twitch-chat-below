@@ -1,0 +1,92 @@
+/* All Twitch overrides are scoped to the active channel layout. */
+html.tcb-enabled .right-column {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+}
+
+html.tcb-enabled .channel-root__main--with-chat,
+html.tcb-enabled .channel-root__info--with-chat {
+  width: 100% !important;
+  max-width: none !important;
+  margin-right: 0 !important;
+}
+
+/* Theatre's fixed player would cover chat and About. Keep it in the channel's
+   scrollable layout, using the same reserved height for the information below. */
+html.tcb-enabled.tcb-theatre .persistent-player {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: auto !important;
+  inset-inline-start: 0 !important;
+  width: 100% !important;
+  height: var(--tcb-theatre-player-height) !important;
+  transform: none !important;
+  z-index: 1 !important;
+}
+
+html.tcb-enabled.tcb-theatre .channel-page__video-player--theatre-mode {
+  position: absolute !important;
+  width: 100% !important;
+  height: var(--tcb-theatre-player-height) !important;
+  max-height: none !important;
+}
+
+html.tcb-enabled.tcb-theatre .tcb-theatre-info {
+  margin-top: var(--tcb-theatre-player-height) !important;
+}
+
+html.tcb-enabled.tcb-theatre .channel-root__scroll-area--theatre-mode {
+  overflow-y: auto !important;
+}
+
+#tcb-panel {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 0 20px;
+  overflow: hidden;
+  border: 1px solid #353538;
+  border-radius: 8px;
+  background: #18181b;
+  color: #efeff1;
+}
+
+#tcb-panel .tcb-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #353538;
+  font: 13px system-ui, sans-serif;
+}
+
+#tcb-panel .tcb-height-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+
+#tcb-panel input[type="range"] {
+  width: 120px;
+  min-width: 40px;
+  margin: 0;
+  accent-color: #a970ff;
+  cursor: ns-resize;
+}
+
+#tcb-panel input:focus-visible { outline: 2px solid #bf94ff; outline-offset: 2px; }
+#tcb-panel output { min-width: 48px; color: #bf94ff; white-space: nowrap; }
+
+#tcb-panel iframe {
+  display: block;
+  width: 100%;
+  height: var(--tcb-chat-height, 420px);
+  min-height: 260px;
+  border: 0;
+  background: #18181b;
+}

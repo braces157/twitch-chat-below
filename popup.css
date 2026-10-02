@@ -1,0 +1,30 @@
+:root { color-scheme: dark; font: 13px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+* { box-sizing: border-box; }
+body { width: 340px; margin: 0; background: #18181b; color: #efeff1; }
+.brand { display: flex; align-items: center; gap: 12px; padding: 24px 22px; border-bottom: 1px solid #303034; }
+.brand img { border-radius: 11px; }
+h1 { margin: 0; font-size: 17px; font-weight: 650; letter-spacing: -.35px; }
+.brand p { margin: 3px 0 0; color: #adadb8; font-size: 12px; }
+main { padding: 0 22px 18px; }
+.setting { padding: 21px 0; border-bottom: 1px solid #303034; }
+label { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.toggle { position: relative; cursor: pointer; }
+.toggle strong { display: block; font-weight: 600; }
+.toggle small { display: block; margin-top: 3px; color: #adadb8; font-size: 11px; }
+.toggle input { position: absolute; right: 0; width: 38px; height: 22px; margin: 0; opacity: 0; }
+.switch-track { flex: 0 0 38px; height: 22px; padding: 3px; border-radius: 20px; background: #53535f; transition: background .16s ease; pointer-events: none; }
+.switch-track::after { content: ""; display: block; width: 16px; height: 16px; border-radius: 50%; background: white; transition: transform .16s ease; }
+.toggle input:checked + .switch-track { background: #9146ff; }
+.toggle input:checked + .switch-track::after { transform: translateX(16px); }
+.toggle input:focus-visible + .switch-track { outline: 2px solid #bf94ff; outline-offset: 4px; }
+input:disabled { cursor: wait; }
+input:disabled + .switch-track { opacity: .5; }
+.height-setting label { font-weight: 600; }
+output { padding: 3px 8px; border: 1px solid #45404f; border-radius: 6px; color: #d5b6ff; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums; }
+input[type="range"] { display: block; width: 100%; height: 18px; margin: 17px 0 7px; accent-color: #a970ff; cursor: pointer; }
+input[type="range"]:focus-visible { outline: 2px solid #bf94ff; outline-offset: 3px; border-radius: 3px; }
+.range-labels { display: flex; justify-content: space-between; color: #adadb8; font-size: 10px; }
+.hint { margin: 17px 0 0; color: #adadb8; font-size: 11px; line-height: 1.65; }
+#status { min-height: 17px; margin: 9px 0 0; color: #d5b6ff; font-size: 11px; }
+footer { display: flex; justify-content: space-between; padding: 12px 22px; border-top: 1px solid #303034; color: #adadb8; font-size: 10px; }
+@media (prefers-reduced-motion: reduce) { .switch-track, .switch-track::after { transition: none; } }

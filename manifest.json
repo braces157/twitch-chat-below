@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Twitch Chat Below",
+  "version": "1.1.0",
+  "description": "Put resizable Twitch chat above About, with a full-width stream in normal and theatre modes.",
+  "permissions": ["storage"],
+  "homepage_url": "https://github.com/braces157/twitch-chat-below",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "Twitch Chat Below",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "content_scripts": [{
+    "matches": ["https://www.twitch.tv/*"],
+    "js": ["content.js"],
+    "css": ["content.css"],
+    "run_at": "document_idle",
+    "all_frames": false
+  }]
+}
