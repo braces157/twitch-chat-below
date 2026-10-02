@@ -114,7 +114,7 @@
     // in the scrollable channel layout so chat and About remain accessible.
     const wrapper = document.querySelector(".root-scrollable__wrapper");
     const width = wrapper?.getBoundingClientRect().width || window.innerWidth;
-    const height = `${Math.round(Math.min(width * 9 / 16, Math.max(180, window.innerHeight - 160)))}px`;
+    const height = `${Math.round(width * 9 / 16)}px`;
     if (document.documentElement.style.getPropertyValue("--tcb-theatre-player-height") !== height) {
       document.documentElement.style.setProperty("--tcb-theatre-player-height", height);
     }
@@ -180,7 +180,7 @@
     const about = document.getElementById("live-channel-about-panel");
     // Fullscreen retains Twitch's normal layout. Theatre supports chat below.
     const theatre = document.querySelector(
-      '.persistent-player--theatre, .persistent-player[data-a-player-state="theatre"], .channel-root--watch-theatre'
+      '.persistent-player--theatre, .persistent-player[data-a-player-state="theatre"], .channel-root--watch-theatre, .channel-page__video-player--theatre-mode'
     );
     if (!settings.enabled || !isPortraitMonitor() || !channel || !about) {
       if (host || document.documentElement.classList.contains("tcb-enabled")) unmount();
@@ -216,8 +216,10 @@
 
   const observer = new MutationObserver(records => {
     // Ignore frequent chat/player changes, including our own chat frame.
-    if (records.some(record => !(record.target instanceof Element) ||
-      !record.target.closest(".right-column, #tcb-panel, .video-player, #live-channel-stream-information"))) {
+    if (records.some(record => record.type === "attributes"
+      ? record.target.matches(".persistent-player, .channel-root")
+      : !(record.target instanceof Element) ||
+        !record.target.closest(".right-column, #tcb-panel, .video-player, #live-channel-stream-information"))) {
       schedule();
     }
   });
@@ -229,7 +231,7 @@
       settings = { ...defaults };
     }
     reconcile();
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "data-a-player-state"] });
     // Also catch moving between monitors without a resize or page navigation.
     const poll = setInterval(reconcile, 1000);
     document.addEventListener("fullscreenchange", schedule);

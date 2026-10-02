@@ -19,7 +19,7 @@ A lightweight Chrome extension for vertical monitors that moves Twitch's officia
 - **Full-width video** — hide the right chat sidebar and place chat beneath the stream information, above offers such as Just For You and the About section.
 - **Adjustable chat** — drag the bottom edge to resize from 260 to 900 pixels, or use the extension popup. The height is saved automatically. There is no extra toolbar above Twitch chat.
 - **About stays visible** — the channel's original About section remains below chat.
-- **Theatre support** — chat stays beneath the video in theatre mode; fullscreen uses Twitch's normal layout.
+- **Theatre support** — full-width video with chat directly underneath at the same width. Twitch navigation is hidden; stream information, offers, and About stay below chat. Fullscreen uses Twitch's normal layout.
 - **One-click restore** — switch the extension off to return to the original layout.
 - **Local preferences** — no analytics, API keys, signup, or developer-operated server.
 
@@ -43,7 +43,7 @@ The extension requests only `storage` and runs its content script on `https://ww
 
 Twitch may change its page structure, so future updates can affect the layout. Switch the extension off if you encounter a problem and [open an issue](https://github.com/braces157/twitch-chat-below/issues) with your Chrome version and the affected channel URL.
 
-Third-party emote extensions such as 7TV may behave differently inside embedded chat. On shorter windows, use a smaller chat height or scroll down. Theatre mode keeps the player within the available video area.
+Third-party emote extensions such as 7TV may behave differently inside embedded chat. On shorter windows, use a smaller chat height or scroll down. Theatre mode preserves the video's aspect ratio across the full browser width. Exit theatre mode with the player control or Alt+T to restore Twitch navigation.
 
 After updating an unpacked installation, click **Reload** for Twitch Chat Below in `chrome://extensions`, then refresh your Twitch tabs.
 
@@ -68,6 +68,8 @@ Version 1.2.0 was checked in the installed extension on the same page: the custo
 Version 1.2.1 was checked on the live channel in normal and theatre modes: chat appeared immediately after stream information, above the Just For You offer and About. The bottom resize grip and saved height were preserved.
 
 Version 1.3.0 was checked on the live portrait display. The layout lifecycle was also exercised with simulated monitor dimensions: 1920x1080 landscape (including an 800x1200 browser window), 1080x1920 portrait, square screens, and portrait-to-landscape-to-portrait transitions. Landscape restored the original layout, and the saved chat height remained available when returning to portrait.
+
+Version 1.3.1 was checked as the installed extension on the live channel: theatre video and chat both spanned the full 842.4-pixel browser content width, with no gap between them. Navigation returned on exiting theatre, and chat stayed above offers and About. Bottom-edge dragging changed the saved height from 707 to 757 pixels; the original 707-pixel height was restored. Native fullscreen hid chat, and exiting fullscreen restored the full-width theatre layout. Packaging validation passed.
 
 The original generated artwork and generation prompt are recorded in [assets/](assets/README.md). Changes are recorded in [CHANGELOG.md](CHANGELOG.md).
 

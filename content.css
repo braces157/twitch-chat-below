@@ -16,8 +16,21 @@ html.tcb-enabled .channel-root__info--with-chat {
   margin-right: 0 !important;
 }
 
-/* Theatre's fixed player would cover chat and About. Keep it in the channel's
-   scrollable layout, using the same reserved height for the information below. */
+/* Portrait theatre fills the browser content area, like Twitch's player view.
+   Keep video and chat together in one scrollable, full-width column. */
+html.tcb-enabled.tcb-theatre .top-nav,
+html.tcb-enabled.tcb-theatre .side-nav {
+  display: none !important;
+}
+
+html.tcb-enabled.tcb-theatre .twilight-main {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
 html.tcb-enabled.tcb-theatre .persistent-player {
   position: absolute !important;
   top: 0 !important;
@@ -26,6 +39,7 @@ html.tcb-enabled.tcb-theatre .persistent-player {
   inset-inline-start: 0 !important;
   width: 100% !important;
   height: var(--tcb-theatre-player-height) !important;
+  max-height: none !important;
   transform: none !important;
   z-index: 1 !important;
 }
@@ -43,6 +57,21 @@ html.tcb-enabled.tcb-theatre .tcb-theatre-info {
 
 html.tcb-enabled.tcb-theatre .channel-root__scroll-area--theatre-mode {
   overflow-y: auto !important;
+  scrollbar-width: none;
+}
+
+html.tcb-enabled.tcb-theatre .channel-info-content {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Reorder visually without moving/reloading Twitch's live chat iframe. */
+html.tcb-enabled.tcb-theatre #tcb-panel {
+  order: -1;
+  flex: none;
+  width: 100%;
+  margin: 0;
+  border: 0;
 }
 
 #tcb-panel {

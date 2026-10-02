@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.1
+
+- Portrait theatre fills the browser content area with full-width video and chat directly underneath at the same width.
+- Hide Twitch navigation and remove chat margins in theatre mode; stream information, offers, and About remain below chat.
+- Preserve the video aspect ratio and update theatre layout promptly when player mode changes.
+- Keep the chat iframe in place while switching modes so the layout change does not reload messages.
+
 ## 1.3.0
 
 - Automatically activate only on portrait monitors, using display dimensions rather than browser window dimensions.
