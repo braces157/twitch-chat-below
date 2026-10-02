@@ -14,8 +14,8 @@
   let iframe = null;
   let mountedChannel = "";
   let timer = null;
-  let heightInput = null;
-  let heightOutput = null;
+  let resizeHandle = null;
+  let resize = null;
   let theatreInfo = null;
 
   function channelFromUrl() {
@@ -23,6 +23,12 @@
     if (parts.length !== 1) return null;
     const channel = parts[0].toLowerCase();
     return /^[a-z0-9_]{1,25}$/.test(channel) && !reserved.has(channel) ? channel : null;
+  }
+
+  function isPortraitMonitor() {
+    // Use the display dimensions, not the browser window: a narrow window on
+    // a landscape monitor should still use Twitch's original sidebar.
+    return window.screen.width > 0 && window.screen.height > window.screen.width;
   }
 
   function normalize(values) {
@@ -34,6 +40,7 @@
   }
 
   function unmount() {
+    finishResize(false);
     document.documentElement.classList.remove("tcb-enabled", "tcb-theatre");
     document.documentElement.style.removeProperty("--tcb-theatre-player-height");
     theatreInfo?.classList.remove("tcb-theatre-info");
@@ -42,8 +49,7 @@
     host = null;
     iframe = null;
     mountedChannel = "";
-    heightInput = null;
-    heightOutput = null;
+    resizeHandle = null;
   }
 
   function applyHeight() {
@@ -51,16 +57,44 @@
     if (host && host.style.getPropertyValue("--tcb-chat-height") !== height) {
       host.style.setProperty("--tcb-chat-height", height);
     }
-    if (heightInput) heightInput.value = String(settings.height);
-    if (heightOutput && heightOutput.value !== `${settings.height} px`) heightOutput.value = `${settings.height} px`;
+    resizeHandle?.setAttribute("aria-valuenow", String(settings.height));
+    resizeHandle?.setAttribute("aria-valuetext", `${settings.height} pixels`);
   }
 
   async function saveHeight() {
     try {
       await chrome.storage.local.set({ height: settings.height });
-      heightInput?.removeAttribute("title");
+      if (resizeHandle) resizeHandle.title = "Drag to resize chat";
     } catch {
-      if (heightInput) heightInput.title = "Height changed for this page, but could not be saved. Reload the page to reconnect the extension.";
+      if (resizeHandle) resizeHandle.title = "Height changed for this page, but could not be saved. Reload the page to reconnect the extension.";
+    }
+  }
+
+  function finishResize(save = true) {
+    if (!resize) return;
+    const pointerId = resize.pointerId;
+    resize = null;
+    host?.classList.remove("tcb-resizing");
+    document.documentElement.classList.remove("tcb-resizing");
+    if (resizeHandle?.hasPointerCapture(pointerId)) resizeHandle.releasePointerCapture(pointerId);
+    if (save) saveHeight();
+  }
+
+  function setHeight(height) {
+    settings.height = Math.round(Math.max(260, Math.min(900, height)));
+    applyHeight();
+  }
+
+  function placeChat(about) {
+    const information = document.getElementById("live-channel-stream-information");
+    // Anchor to stream information rather than the offer's changing text or
+    // generated classes. Offers and About keep their original order below chat.
+    const afterInformation = information && information.parentElement?.contains(about);
+    host.classList.toggle("tcb-after-stream-info", Boolean(afterInformation));
+    if (afterInformation) {
+      if (information.nextElementSibling !== host) information.after(host);
+    } else if (host.nextElementSibling !== about) {
+      about.before(host);
     }
   }
 
@@ -91,31 +125,43 @@
     host.id = "tcb-panel";
     host.setAttribute("aria-label", "Chat below the stream");
 
-    const toolbar = document.createElement("div");
-    toolbar.className = "tcb-toolbar";
-    const title = document.createElement("strong");
-    title.textContent = `Stream chat · ${channel}`;
-    const heightControl = document.createElement("label");
-    heightControl.className = "tcb-height-control";
-    heightControl.htmlFor = "tcb-height";
-    const heightLabel = document.createElement("span");
-    heightLabel.textContent = "Chat height";
-    heightInput = document.createElement("input");
-    heightInput.id = "tcb-height";
-    heightInput.type = "range";
-    heightInput.min = "260";
-    heightInput.max = "900";
-    heightInput.step = "20";
-    heightInput.setAttribute("aria-label", "Chat height");
-    heightOutput = document.createElement("output");
-    heightOutput.htmlFor = heightInput.id;
-    heightInput.addEventListener("input", () => {
-      settings.height = Number(heightInput.value);
-      applyHeight();
+    resizeHandle = document.createElement("div");
+    resizeHandle.className = "tcb-resize-handle";
+    resizeHandle.tabIndex = 0;
+    resizeHandle.title = "Drag to resize chat";
+    resizeHandle.setAttribute("role", "separator");
+    resizeHandle.setAttribute("aria-label", "Resize chat");
+    resizeHandle.setAttribute("aria-orientation", "horizontal");
+    resizeHandle.setAttribute("aria-valuemin", "260");
+    resizeHandle.setAttribute("aria-valuemax", "900");
+    resizeHandle.addEventListener("pointerdown", event => {
+      if (event.button !== 0 || resize) return;
+      event.preventDefault();
+      resize = { pointerId: event.pointerId, startY: event.clientY, startHeight: settings.height };
+      resizeHandle.setPointerCapture(event.pointerId);
+      host.classList.add("tcb-resizing");
+      document.documentElement.classList.add("tcb-resizing");
     });
-    heightInput.addEventListener("change", saveHeight);
-    heightControl.append(heightLabel, heightInput, heightOutput);
-    toolbar.append(title, heightControl);
+    resizeHandle.addEventListener("pointermove", event => {
+      if (!resize || event.pointerId !== resize.pointerId) return;
+      setHeight(resize.startHeight + event.clientY - resize.startY);
+    });
+    for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
+      resizeHandle.addEventListener(type, event => {
+        if (resize && event.pointerId === resize.pointerId) finishResize();
+      });
+    }
+    resizeHandle.addEventListener("keydown", event => {
+      let height = settings.height;
+      if (event.key === "ArrowUp") height -= 20;
+      else if (event.key === "ArrowDown") height += 20;
+      else if (event.key === "Home") height = 260;
+      else if (event.key === "End") height = 900;
+      else return;
+      event.preventDefault();
+      setHeight(height);
+      saveHeight();
+    });
 
     iframe = document.createElement("iframe");
     iframe.title = `${channel} Twitch chat`;
@@ -124,8 +170,8 @@
     url.searchParams.set("darkpopout", "");
     iframe.src = url.href;
     // Do not sandbox the Twitch frame: it needs its normal login and popup flow.
-    host.append(toolbar, iframe);
-    about.before(host);
+    host.append(iframe, resizeHandle);
+    placeChat(about);
     mountedChannel = channel;
   }
 
@@ -136,17 +182,27 @@
     const theatre = document.querySelector(
       '.persistent-player--theatre, .persistent-player[data-a-player-state="theatre"], .channel-root--watch-theatre'
     );
-    if (!settings.enabled || !channel || !about || document.fullscreenElement) {
+    if (!settings.enabled || !isPortraitMonitor() || !channel || !about) {
       if (host || document.documentElement.classList.contains("tcb-enabled")) unmount();
+      return;
+    }
+    // Keep the embedded frame alive during fullscreen so switching modes does
+    // not reload chat while Twitch is transitioning its player subtree.
+    if (document.fullscreenElement) {
+      finishResize();
+      document.documentElement.classList.remove("tcb-enabled");
+      updateTheatre(null);
+      if (host) host.hidden = true;
       return;
     }
     if (!host?.isConnected || mountedChannel !== channel) {
       unmount();
       mount(channel, about);
-    } else if (host.nextElementSibling !== about) {
-      about.before(host);
+    } else {
+      placeChat(about);
     }
     applyHeight();
+    host.hidden = false;
     document.documentElement.classList.add("tcb-enabled");
     updateTheatre(theatre);
   }
@@ -174,10 +230,11 @@
     }
     reconcile();
     observer.observe(document.body, { childList: true, subtree: true });
-    // Twitch navigates without a full page load. This also catches theatre mode.
+    // Also catch moving between monitors without a resize or page navigation.
     const poll = setInterval(reconcile, 1000);
     document.addEventListener("fullscreenchange", schedule);
     window.addEventListener("resize", schedule);
+    window.screen.orientation?.addEventListener("change", schedule);
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area !== "local") return;
       for (const key of Object.keys(defaults)) {
@@ -187,7 +244,7 @@
       reconcile();
     });
     window.addEventListener("pagehide", event => {
-      if (event.persisted) return;
+      if (event.target !== window || event.persisted) return;
       if (timer !== null) clearTimeout(timer);
       clearInterval(poll);
       observer.disconnect();

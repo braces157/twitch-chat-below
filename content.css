@@ -1,4 +1,8 @@
 /* All Twitch overrides are scoped to the active channel layout. */
+html.tcb-enabled .channel-root {
+  background-color: var(--color-background-body, #0e0e10) !important;
+}
+
 html.tcb-enabled .right-column {
   display: none !important;
   width: 0 !important;
@@ -47,40 +51,39 @@ html.tcb-enabled.tcb-theatre .channel-root__scroll-area--theatre-mode {
   margin: 0 0 20px;
   overflow: hidden;
   border: 1px solid #353538;
-  border-radius: 8px;
+  border-radius: 0;
   background: #18181b;
   color: #efeff1;
 }
 
-#tcb-panel .tcb-toolbar {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 40px;
-  padding: 8px 12px;
-  border-bottom: 1px solid #353538;
-  font: 13px system-ui, sans-serif;
+#tcb-panel.tcb-after-stream-info {
+  width: calc(100% - 32px);
+  margin: 16px 16px 20px;
 }
 
-#tcb-panel .tcb-height-control {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  max-width: 100%;
-}
-
-#tcb-panel input[type="range"] {
-  width: 120px;
-  min-width: 40px;
-  margin: 0;
-  accent-color: #a970ff;
+#tcb-panel .tcb-resize-handle {
+  display: grid;
+  place-items: center;
+  height: 8px;
   cursor: ns-resize;
+  touch-action: none;
+  user-select: none;
 }
 
-#tcb-panel input:focus-visible { outline: 2px solid #bf94ff; outline-offset: 2px; }
-#tcb-panel output { min-width: 48px; color: #bf94ff; white-space: nowrap; }
+#tcb-panel .tcb-resize-handle::after {
+  content: "";
+  width: 32px;
+  height: 2px;
+  background: #53535f;
+}
+
+#tcb-panel .tcb-resize-handle:hover::after,
+#tcb-panel .tcb-resize-handle:focus-visible::after,
+#tcb-panel.tcb-resizing .tcb-resize-handle::after { background: #bf94ff; }
+
+#tcb-panel .tcb-resize-handle:focus-visible { outline: 2px solid #bf94ff; outline-offset: -2px; }
+html.tcb-resizing, html.tcb-resizing * { cursor: ns-resize !important; user-select: none !important; }
+#tcb-panel.tcb-resizing iframe { pointer-events: none; }
 
 #tcb-panel iframe {
   display: block;

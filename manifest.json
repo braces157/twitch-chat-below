@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Twitch Chat Below",
-  "version": "1.1.0",
-  "description": "Put resizable Twitch chat above About, with a full-width stream in normal and theatre modes.",
+  "version": "1.3.0",
+  "description": "Resizable Twitch chat below the stream on vertical monitors only. Landscape monitors keep Twitch's original layout.",
   "permissions": ["storage"],
   "homepage_url": "https://github.com/braces157/twitch-chat-below",
   "icons": {
